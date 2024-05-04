@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Navbar</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav m-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Link</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Dropdown
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="#">Bucket</a>
+                <a class="dropdown-item my_pointer" href="/add_product" >Add product</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#">Setting</a>
+                <a class="dropdown-item" href="#" onclick="logout()">Logout</a>
+              </div>
+            </li>
+          
+          </ul>
+          <form class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+          </form>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <h2 class="mb-4">Add Product</h2>
+        <form>
+            <div class="form-group">
+                <label for="productName">Product Name:</label>
+                <input type="text" class="form-control" id="productName" placeholder="Enter product name">
+            </div>
+            <div class="form-group">
+                <label for="productDescription">Product Description:</label>
+                <textarea class="form-control" id="productDescription" rows="3" placeholder="Enter product description"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="productPrice">Product Price:</label>
+                <input type="number" class="form-control" id="productPrice" placeholder="Enter product price">
+            </div>
+            <div class="form-group">
+                <label for="productPrice">Product Price:</label>
+                <!--<input type="file" onchange="uploading(this.files)" class="form-control" id="">-->
+                <input type="file"class="form-control" id="get_pro_img">
+            </div>
+            <!--<button type="submit" class="btn btn-primary" onclick="create_pro(event)">Submit</button>-->
+            <button type="submit" class="btn btn-primary" id="create_pro_btn">Submit</button>
+        </form>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const sockets = io("http://localhost:8080") 
+        sockets.on('create_pro_success',(data)=>{
+            Swal.fire({
+                title: "Add ptoduct success",
+                text:`You create product success`,
+                icon: "success"
+            });
+        
+    })
+    function create_pro(event){
+        event.preventDefault()
+        const pro_name = document.getElementById("productName")
+        const pro_de = document.getElementById("productDescription")
+        const pro_price = document.getElementById("productPrice")
+        if(pro_name.value != "" && pro_price.value != "" && pro_price.value > 0){
+            sockets.emit("create_pro",{name: pro_name.value,detail: pro_de.value,price:pro_price.value})
+        }else{
+            Swal.fire({
+            title: "Add ptoduct fail",
+            text: "Product's name,price can not be empty or 0",
+            icon: "error"
+            });
+        }
+    }
+
+    // function uploading(files) {
+    //   // Check if files were selected
+    //   if (files.length > 0) {
+    //     const file = files[0];
+        
+    //     // Read the file data
+    //     const reader = new FileReader();
+    //     reader.onload = function(event) {
+    //       const fileData = event.target.result;
+          
+    //       // Emit the file data to the server
+    //       sockets.emit("upload", { name: file.name, data: fileData }, (status) => {
+    //         console.log(status);
+    //       });
+    //     };
+    //     reader.readAsArrayBuffer(file);
+    //   }
+    // }
+    $(document).ready(()=>{
+    $('#create_pro_btn').click((e)=>{
+        e.preventDefault();
+        const pro_name = $('#productName').val()
+        const pro_price = $('#productPrice').val()
+        const pro_des = $('#productDescription').val()
+        const File = $('#get_pro_img').prop("files")[0]
+        console.log(typeof File)
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const fileData = event.target.result;
+          // Emit the file data to the server
+          sockets.emit("upload", { name: File.name, data: fileData,pro_name:pro_name,pro_price:pro_price,pro_des:pro_des }, (status) => {
+            console.log(status);
+          });
+        };
+        reader.readAsArrayBuffer(File);
+
+    })
+    })
+    </script>
+    <script>
+        sockets.emit("check",1)
+        sockets.on('send_back',()=>{
+        window.location.href=`/login`
+      })
+      
+      function logout(){
+          sockets.emit('logout')
+      }
+      sockets.on('logout',()=>{
+        window.location.href=`/`
+      })
+    </script>
+</body>
+
+</html>

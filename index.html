@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script   script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="all.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Navbar</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav m-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Link</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Dropdown
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="#">Bucket</a>
+                <a class="dropdown-item my_pointer" href="/add_product" >Add product</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#">Setting</a>
+                <a class="dropdown-item" href="#" onclick="logout()">Logout</a>
+              </div>
+            </li>
+          
+          </ul>
+          <form class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+          </form>
+        </div>
+    </nav>
+    
+    <div class="my-2 container" >
+      <div class="row" id="get_pro">
+        
+      </div>
+
+    </div>
+
+
+    <div class="overlay" id="overlay"style="display: none;">
+      <div class="floating-window" id="floatingWindow">
+        <span class="close-btn" onclick="closeFloatingWindow();"><h1>&times;</h1></span>
+        <div class="content">
+        <div class="text-center">
+          <h1 id="NamePro" >wow</h1>
+          <div class="" id="ImgPro">
+
+          </div>
+        </div>
+        <br>
+          <div class="card border-0 overflow-auto" style="background-color: #f8f9fa; width: 500px; height: 200px;">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius nulla, voluptatem a facilis, delectus fugiat velit magni beatae optio error iste dolorum perspiciatis autem molestias cum blanditiis et repellat reprehenderit!
+          </div>
+          <div class="text-center align-bottom">
+          <form id="sendnow">
+            <input type="number" class="form-control my-2" min="1" required id="quantity" value="1">
+            <button type="submit" class="btn btn-primary" onclick="sendnow(event)">add</button>
+            <buttton  type="submit" class="btn btn-success" onclick="sendnow(event)">Buy</buttton>
+          </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    const sockets = io("http://localhost:8080") 
+    $(document).ready(()=>{
+      sockets.emit('get_pro')
+      sockets.on('send_pro_back',(data)=>{
+
+      data.forEach(function(item) {
+        let div_click_pro
+        div_click_pro = `
+        <div class="card m-2 p-2 my_pointer click_pro" style="width:20rem;height:25rem" id="click_pro" data-product = "${item.pro_id}">
+          `
+          div_click_pro +=`
+          <h4 class="text-center">${item.pro_name}</h4>
+          `
+          div_click_pro +=` 
+            <div class="text-center" >
+              <img src="/all_image/${item.img}" width="175" height="175">  
+            </div>
+          `
+          if(item.pro_des != ""){
+            div_click_pro += ` 
+              <h5 class="text-center">${item.pro_des}</h5>
+            `
+          }else{
+            div_click_pro += ` 
+            <h5 class="text-center text-muted">No description</h5>
+          `
+          }
+          div_click_pro += ` 
+            <h4 class="text-center">${item.pro_price}</h4>
+          `
+        div_click_pro += `
+        </div>
+        `
+        $('#get_pro').append(div_click_pro)
+      });
+
+    })
+    $(document).on('click', '#click_pro', function() {
+        var productId = $(this).data("product");
+        console.log(productId)
+        sockets.emit('look_pro',productId);
+      });
+  })
+  
+  function sendmessing(){
+        const myi = document.getElementById('myi')
+        sockets.emit('sendmessing',myi.value)
+        myi.value = ""
+    }
+    function closeFloatingWindow(){
+      const floatingWindow = document.getElementById('floatingWindow')
+      document.getElementById('overlay').style.display='none'
+    }
+    function sendnow(event){
+    event.preventDefault();
+     console.log(document.getElementById('quantity').value)
+    }
+    //-------------------------------------------------
+    sockets.on("welcome",(data)=>{
+        const frist = document.getElementById("frist")
+        frist.innerText = data 
+    })
+    sockets.on('send_socket',(data)=>{
+        sockets.id = data
+        sockets.emit('get_socket',sockets.id)
+    })
+    sockets.on("send_select_pro",(data)=>{
+      $(document).ready(()=>{
+        $('#overlay').toggle()
+        $('#NamePro').text(data[0].pro_name)
+        $('#ImgPro').html(`<img src="all_image/${data[0].img}" alt="" width="300" height="300">`)
+      })
+    })
+
+    sockets.on('getmessing',(data)=>{
+        const my_chat = document.createElement('div')
+        my_chat.innerHTML  =`<h3>${data}</h3>`
+        document.getElementById('chating').append(my_chat)
+    })
+  </script>
+  <script>
+    sockets.emit("check",1)
+    sockets.on('send_back',()=>{
+    window.location.href=`/login`
+  })
+  
+  function logout(){
+      sockets.emit('logout')
+  }
+  sockets.on('logout',()=>{
+    window.location.href=`/`
+  })
+</script>
+</body>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script   script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="all.css">
+</head>
+<body>
+    <div id = "wow"></div>
+    <div style="padding: 200px;">
+        <div class="row">
+           <button class=" btn btn-primary btn-block" id="btn_toggle">LOGIN</button>
+        </div>
+        <br>
+        <form class="" id="login">
+            <input type="text" class="form-control" placeholder="Username" id="LUS">
+            <br>
+            <input type="password" class="form-control" placeholder="Password" id="LPW">
+            <br>
+            <div class="text-center">
+                <button class="btn btn-success" id="s_login" type="submit">LOGIN</button>
+            </div>
+        </form>
+
+
+        <div class=""  id="register" style="display: none;">
+            <!-- Email input -->
+            <input type="text" class="form-control" placeholder="Username" id="RUS">
+            <br>
+            <input type="password" class="form-control" placeholder="Password" id="RPW">
+            <br>
+            <input type="password" class="form-control" placeholder="Confirm password" id="CPW">
+            <br>
+            <div class="text-center">
+                <button class="btn btn-success" id="s_register" onclick="send_register()">REGISTER</button>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const sockets = io("http://localhost:8080") 
+        // let login = document.getElementById("login")
+        // let register = document.getElementById("register")
+        // let bth_login = document.getElementById("btn_login")
+        // let btn_register = document.getElementById("btn_register")
+        // register.style.display ="none"
+        // login.style.display ="block"
+
+        // function get_login(){
+        //     if(!btn_register.classList.contains("disabled")){
+        //         btn_register.classList.add("disabled")
+        //     }
+        //     if(btn_login.classList.contains("disabled")){
+        //         btn_login.classList.remove("disabled")
+        //     }
+        //     login.style.display = "block"
+        //     register.style.display ="none"
+        // }
+
+        // function get_register(){
+        //     if(!btn_login.classList.contains("disabled")){
+        //         btn_login.classList.add("disabled")
+        //     }
+        //     if(btn_register.classList.contains("disabled")){
+        //         btn_register.classList.remove("disabled")
+        //     }
+        //     login.style.display = "none"
+        //     register.style.display ="block"
+        // }
+
+        // function send_login(event){
+        //     event.preventDefault()
+        //     const username = document.getElementById("LUS")
+        //     const password = document.getElementById("LPW")
+        //     sockets.emit("login",{username:username.value,password:password.value})
+            
+        // }
+
+        // function send_register(){
+        //     const username = document.getElementById("RUS")
+        //     const password = document.getElementById("RPW")
+        //     const cpassword = document.getElementById("CPW")
+        //     if(username.value == "" || password.value == "" || cpassword.value == ""){
+                
+        //         Swal.fire({
+        //             icon: "error",
+        //             title: "Register fail",
+        //             text: "User name , Password and Confirm password can't be empty",
+        //         });
+        //     }else{
+        //         if(password.value != cpassword.value){
+        //             Swal.fire({
+        //                 icon: "error",
+        //                 title: "Register fail",
+        //                 text: "Password not match to each other",
+        //             });
+        //         }else{
+        //             sockets.emit("register",{username:username.value,password:password.value,cpassword:cpassword.value})
+        //         }
+        //     }
+        
+        // }
+        
+
+        sockets.on("login_back",(data)=>{
+            if(data.status == 1){
+                Swal.fire({
+                    icon:"success",
+                    title: "Login success",
+                    showDenyButton: false,
+                    showCancelButton: false,
+                    confirmButtonText: "OK",
+                    denyButtonText: `Don't save`
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href=`http://localhost:8080/`
+                    } 
+                });
+                
+            }else{
+                Swal.fire({
+                    icon: "error",
+                    title: "Login fail",
+                    text: "Password or username does'nt correct"
+                });
+            }
+        })
+
+        sockets.on('register_back',(data)=>{
+            if(data.status == 1){
+                Swal.fire({
+                    icon: "success",
+                    title: "Register Success",
+                    text: `You create ${data.name} account success`,
+                    });
+                    document.getElementById('btn_login').click() 
+            }else{
+                Swal.fire({
+                    icon: "error",
+                    title: "Register fail",
+                    text: `${data.name} alredy exist`
+                });
+                
+            }
+        })
+
+        //---------------------------------------------------------
+
+        $(document).ready(()=>{
+            const login = $('#login')
+            const register = $('#register')
+            const btn_toggle = $('#btn_toggle')
+            $('#btn_toggle').click(()=>{
+                login.slideToggle('1000')
+                register.slideToggle('500')
+                if($('#btn_toggle').text() == "LOGIN"){
+                    btn_toggle.text("REGISTER") 
+                }else{
+                    btn_toggle.text("LOGIN") 
+                }
+            })
+
+            $('#s_login').click(function(event){
+                event.preventDefault();
+                console.log('wow')
+                sockets.emit('login',
+                    {username:$('#LUS').val(),
+                    password:$("#LPW").val() }
+                )
+            })
+        })
+    </script>
+    
+</body>
+</html>

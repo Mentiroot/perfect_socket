@@ -1,0 +1,38 @@
+.floating-window {
+    position: fixed;
+z-index: 9999;
+background-color: #f8f9fa;
+border: 1px solid #ced4da;
+border-radius: 5px;
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+padding: 10px; /* เพิ่ม padding เพื่อให้หน้าต่างใหญ่ขึ้น */
+max-width: 600px; /* เพิ่มขนาดสูงสุดของหน้าต่าง */
+top: 50%; /* จัดตำแหน่งให้อยู่ตรงกลางแนวดิ่ง */
+left: 50%; /* จัดตำแหน่งให้อยู่ตรงกลางแนวนอน */
+transform: translate(-50%, -50%); /* ใช้ transform เพื่อช่วยจัดตำแหน่งให้อยู่กลางหน้าจอ */
+}
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* สีดำทึบทั้งหน้าจอ */
+    z-index: 9998; /* ต้องอยู่ต่ำกว่า z-index ของ floating window เพื่อไม่ให้ส่งผลกระทบกับ floating window */
+  }
+  .close-btn {
+    color: #6c757d;
+    float: right;
+    cursor: pointer;
+  }
+
+  .close-btn:hover {
+    color: #343a40;
+  }
+
+  .content {
+    padding: 10px 50px 10px 50px;
+  }
+  .my_pointer{
+    cursor: pointer;
+  }
